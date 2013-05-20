@@ -6,7 +6,7 @@ function love.load()
 	world  = love.physics.newWorld(0, 0, true)
 
 	-- load graphics
-	image = love.graphics.newImage("dvd.png")
+	image = love.graphics.newImage("resource/dvd.png")
 
 	-- set defaults
 	love.graphics.setBackgroundColor(60, 60, 60)
