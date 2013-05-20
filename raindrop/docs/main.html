@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>main.lua</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>main.lua</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Load the audio management <a href="https://github.com/vrld/slam">library</a>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="built_in">require</span> <span class="string">"resource/slam"</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Good morning!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">love.load</span><span class="params">()</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Establish constants. These can be configured to fine-tune Raindrops.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    MIN_RADIUS          = <span class="number">2</span>
+    INCREMENT_SIZE      = <span class="number">0.7</span>
+    DEFAULT_LINE_WIDTH  = <span class="number">4</span>
+    MODES = {
+        {background={<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>}, color={<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>}, sound=loadSound(<span class="string">"resource/pongblip.wav"</span>)},
+        {background={<span class="number">201</span>,<span class="number">233</span>,<span class="number">237</span>}, color={<span class="number">173</span>,<span class="number">174</span>,<span class="number">214</span>}, sound=loadSound(<span class="string">"resource/chime.wav"</span>)},
+        {background={<span class="number">223</span>,<span class="number">218</span>,<span class="number">213</span>}, color={<span class="number">109</span>,<span class="number">98</span>,<span class="number">94</span>}, sound=loadSound(<span class="string">"resource/marimba.wav"</span>)}
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Create a physics world for the objects to live in.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    world = love.physics.newWorld(<span class="number">0</span>, <span class="number">0</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p><code>setCallbacks</code> accepts multiple functions.
+The first argument is a function called when two objects collide.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    world:setCallbacks(onCollision)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Create tables to hold physics objects.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    objects = {}
+    walls = {}
+    makeWalls()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Set the visual and audio &quot;theme&quot; default (corresponds to an index of <code>MODES</code>).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    mode = <span class="number">1</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Set engine paramaters.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    love.graphics.setNewFont(<span class="number">14</span>)
+    love.graphics.setMode(<span class="number">800</span>, <span class="number">800</span>)
+    love.graphics.setCaption(<span class="string">"..."</span>)
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Runs once every frame.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">love.draw</span><span class="params">()</span></span>
+    drawText()
+    
+    <span class="keyword">for</span> i, circle <span class="keyword">in</span> <span class="built_in">ipairs</span>(objects) <span class="keyword">do</span>
+        drawCircle(circle)
+    <span class="keyword">end</span>
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Runs before each frame.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">love.update</span><span class="params">(dt)</span></span> 
+    world:update(dt)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Grow/shrink the circles:
+<code>circle</code> becomes the fixture of each circle.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">for</span> i, circle <span class="keyword">in</span> <span class="built_in">ipairs</span>(objects) <span class="keyword">do</span>
+        <span class="keyword">local</span> data = circle:getUserData()
+        <span class="keyword">local</span> r = circle:getShape():getRadius()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>By multiplying <code>d</code>, we make the circle either grow or shrink.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">local</span> d = <span class="number">1</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Make <code>d</code> negative if the circle is shrinking.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> data.state == <span class="string">"shrinking"</span> <span class="keyword">then</span>
+            d = -<span class="number">1</span>
+        <span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Don&#39;t let circle shrink below the minimum size (negative radius = weird shit happening).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span> r &lt; MIN_RADIUS <span class="keyword">then</span>
+            data:flipState()
+            d = <span class="number">1</span>
+        <span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Update the shape&#39;s radius</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        circle:getShape():setRadius(r + d * INCREMENT_SIZE)
+    <span class="keyword">end</span>
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Called when any key is pressed. <code>key</code> is the <a href="http://love2d.org/wiki/KeyConstant">KeyConstant</a> string,
+and <code>code</code> is the base-10 <a href="http://unicode-table.com/">Unicode number</a> for the key pressed.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">love.keypressed</span><span class="params">(key, code)</span></span>
+    <span class="keyword">if</span> code &gt; <span class="number">48</span> <span class="keyword">and</span> code &lt; <span class="number">58</span> <span class="keyword">then</span>
+        <span class="keyword">local</span> n = <span class="built_in">tonumber</span>(key)
+        <span class="keyword">if</span> MODES[n] <span class="keyword">then</span>
+            mode = n
+            love.graphics.setBackgroundColor(<span class="built_in">unpack</span>(MODES[n].background))
+            love.graphics.setColor(<span class="built_in">unpack</span>(MODES[n].color))
+        <span class="keyword">end</span>
+    <span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Clear screen when <code>c</code> pressed.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> key == <span class="string">"c"</span> <span class="keyword">then</span>
+        <span class="keyword">for</span> k, obj <span class="keyword">in</span> <span class="built_in">pairs</span>(objects) <span class="keyword">do</span>
+            obj:destroy()
+        <span class="keyword">end</span>
+        objects = {}
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>When the user leftclicks the screen, create a new circle at that point.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">love.mousereleased</span><span class="params">(x, y, button)</span></span>
+    <span class="keyword">if</span> button == <span class="string">"l"</span> <span class="keyword">then</span>
+        createCircle(x, y)
+    <span class="keyword">end</span>
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Helper functions begin here.</p>
+<p>Define the 4 edges of the window as edges to the physics world. Loops through the
+respective coordinates to be less repetitive.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">makeWalls</span><span class="params">()</span></span>
+    <span class="keyword">local</span> wallCoords = {
+        {<span class="number">0</span>, <span class="number">0</span>, <span class="number">800</span>, <span class="number">0</span>},
+        {<span class="number">800</span>, <span class="number">0</span>, <span class="number">800</span>, <span class="number">800</span>},
+        {<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">800</span>},
+        {<span class="number">0</span>, <span class="number">800</span>, <span class="number">800</span>, <span class="number">800</span>}
+    }
+    
+    <span class="keyword">for</span> i, coords <span class="keyword">in</span> <span class="built_in">ipairs</span>(wallCoords) <span class="keyword">do</span>
+        <span class="keyword">local</span> shape   = love.physics.newEdgeShape(<span class="built_in">unpack</span>(coords))
+        <span class="keyword">local</span> body    = love.physics.newBody(world, <span class="number">0</span>, <span class="number">0</span>, <span class="string">"static"</span>)
+        <span class="keyword">local</span> fixture = love.physics.newFixture(body, shape)
+
+        <span class="built_in">table</span>.insert(walls, fixture)
+    <span class="keyword">end</span>
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Draw a circle based on a given fixture.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">drawCircle</span><span class="params">(fixture)</span></span>
+    <span class="keyword">local</span> body, shape, data = fixture:getBody(), fixture:getShape(), fixture:getUserData()
+    <span class="keyword">local</span> x, y, r = body:getX(), body:getY(), shape:getRadius()
+    <span class="keyword">local</span> xOffset, yOffset = shape:computeAABB(r, r, <span class="number">0</span>)
+
+    love.graphics.setLineWidth(data.lineWidth)
+    love.graphics.circle(<span class="string">"fill"</span>, x + xOffset, y + yOffset, r)
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Create and initialize the physics bodies for a new circle.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">createCircle</span><span class="params">(x, y, lineWidth)</span></span>
+    lineWidth = lineWidth <span class="keyword">or</span> DEFAULT_LINE_WIDTH
+
+    <span class="keyword">local</span> body          = love.physics.newBody(world, x, y, <span class="string">"dynamic"</span>)
+    <span class="keyword">local</span> shape         = love.physics.newCircleShape(MIN_RADIUS)
+    <span class="keyword">local</span> fixture       = love.physics.newFixture(body, shape)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Disable sleeping, which forces the objects to respond to collisions without having to apply
+a force or doing anything else that&#39;d wake up the physbody.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    fixture:getBody():setSleepingAllowed(<span class="keyword">false</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>This table of data gets stored with the fixture, using <code>:setUserData()</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">local</span> data = {
+        lineWidth = lineWidth,
+        state = <span class="string">"growing"</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p><code>flipState()</code> changes the state attribute. The argument <code>self</code> will be the data table for
+this fixture and will be automatically passed <code>data:flipState()</code> is called.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        flipState = function(self)
+            <span class="keyword">if</span> self.state == <span class="string">"growing"</span> <span class="keyword">then</span>
+                self.state = <span class="string">"shrinking"</span>
+            <span class="keyword">else</span>
+                self.state = <span class="string">"growing"</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Insert the above custom data into the fixture.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    fixture:setUserData(data)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Add this completed fixture to the <code>objects</code> table.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="built_in">table</span>.insert(objects, fixture)
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Called when any two objects collide. <code>thisCircle</code> and <code>thatCircle</code> are the objects that collided, if any.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">onCollision</span><span class="params">(thisCircle, thatCircle)</span></span>
+    <span class="keyword">local</span> largest = <span class="number">0</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Of the circles that collided, find the largest radius (the largest circle). This size will be
+used to determine the audio pitch.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span> thisCircle:getShape():typeOf(<span class="string">"CircleShape"</span>) <span class="keyword">then</span>
+        <span class="keyword">if</span> thisCircle:getShape():getRadius() &gt; largest <span class="keyword">then</span>
+            largest = thisCircle:getShape():getRadius()
+        <span class="keyword">end</span>
+        thisCircle:getUserData():flipState()
+    <span class="keyword">end</span>
+
+    <span class="keyword">if</span> thatCircle:getShape():typeOf(<span class="string">"CircleShape"</span>) <span class="keyword">then</span>
+        <span class="keyword">if</span> thatCircle:getShape():getRadius() &gt; largest <span class="keyword">then</span>
+            largest = thatCircle:getShape():getRadius()
+        <span class="keyword">end</span>
+        thatCircle:getUserData():flipState()
+    <span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Play the sound for this collision. Uses <code>getCollisionSound()</code> to return the appropriate collision
+for this theme. Beep boop.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">local</span> sound = getCollisionSound()
+    sound:setVolume(<span class="number">0.4</span> + (largest * <span class="number">.02</span>))
+    sound:setPitch(determinePitch(largest))
+    sound:play()  
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>A exponential-decline equation to determine the pitch. Small widths should be a high pitch, large widths
+should be low. The equation is roughly adjusted for an 800px-wide window.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">determinePitch</span><span class="params">(width)</span></span>
+    <span class="keyword">return</span> <span class="number">1.488</span> * <span class="number">0.99601</span>^width
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Returns the radius of the window (thanks Pythagorus). I can&#39;t remember if I use this anywhere.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">getWindowRadius</span><span class="params">()</span></span>
+    <span class="keyword">local</span> w, h = love.graphics.getWidth(), love.graphics.getHeight()
+    <span class="keyword">return</span> <span class="built_in">math</span>.sqrt(<span class="built_in">math</span>.pow(w, <span class="number">2</span>) + <span class="built_in">math</span>.pow(h, <span class="number">2</span>))
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Load a sound from the game&#39;s resources. Called once for each defined mode at startup.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">loadSound</span><span class="params">(file)</span></span>
+    <span class="keyword">return</span> love.audio.newSource(love.sound.newSoundData(file), <span class="string">"static"</span>)
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>Returns a sound object for the current theme. Called by <code>onCollision()</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">getCollisionSound</span><span class="params">()</span></span>
+    <span class="keyword">return</span> MODES[mode].sound
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Draws the &quot;click&quot; text on the screen when there are no circles, and the control key text when there are circles.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">drawText</span><span class="params">()</span></span>
+    <span class="keyword">if</span> #objects &lt; <span class="number">1</span> <span class="keyword">then</span>
+        love.graphics.<span class="built_in">print</span>(<span class="string">"[  c l i c k  ]"</span>, <span class="number">370</span>, <span class="number">390</span>)
+    <span class="keyword">else</span>
+        love.graphics.<span class="built_in">print</span>(<span class="string">"[ 1-"</span>..#MODES..<span class="string">" ]  change mode"</span>, <span class="number">10</span>, love.graphics.getHeight() - <span class="number">24</span>)
+        love.graphics.<span class="built_in">print</span>(<span class="string">"[ c ] clear"</span>, love.graphics.getWidth()-<span class="number">75</span>, love.graphics.getHeight() - <span class="number">24</span>)
+    <span class="keyword">end</span>
+<span class="keyword">end</span></pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
