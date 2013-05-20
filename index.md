@@ -21,5 +21,5 @@ Peace,
 
 [0]: http://www.love2d.org
 [1]: https://github.com/elliottwilliams/Love2D-Examples/archive/master.zip
-[2]: http://elliottwilliams.github.io/love2d-examples/raindrop/docs/main.html
+[2]: http://elliottwillia.ms/Love2D-Examples/raindrop/docs/main.html
 [3]: https://github.com/elliottwilliams/Love2D-Examples
